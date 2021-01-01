@@ -1,0 +1,16 @@
+version: "3"
+services:
+  db:
+    container_name: db
+    build:
+      context: db
+      dockerfile: Dockerfile
+    volumes:
+      - ./db/mydatabase.sql:/tmp/mydatabase.sql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "mydatabase"
+      MYSQL_PASSWORD: "root"
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
