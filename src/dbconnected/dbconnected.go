@@ -36,3 +36,13 @@ func main() {
 
 	fmt.Println(q.quote)
 }
+
+func insertQuote() {
+	quote := "You and me, we're meant to be, roaming free, in harmony. One fine day, we'll fly away. Don't you know that Rome wasn't built in a day."
+	result, err := db.Exec(`INSERT INTO quotes (quote) VALUES ?`, quote)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return result.LastInsertID()
+}
