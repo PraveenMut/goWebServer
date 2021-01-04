@@ -15,9 +15,12 @@ func setQuote(w http.ResponseWriter, r *http.Request) {
 	quote := "You and me, we're meant to be, roaming free, in harmony. One fine day, we'll fly away. Don't you know that Rome wasn't built in a day."
 	result, err := db.Exec(`INSERT INTO quotes (quote) VALUES ?`, quote)
 	if err != nil {
-		log.Fatal(err)
-		return err
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]bool{"posted": false})
 	}
+	idResult = result.LastInsertID()
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]int{"result": idResult})
 }
 
 func getQuote(w http.ResponseWriter, r *http.Request) {
@@ -32,10 +35,11 @@ func getQuote(w http.ResponseWriter, r *http.Request) {
 	
 	// execute query by searching for the fields defined in struct
 	if err := db.QueryRow(singleQuoteQuery, 1).Scan(&q.id, &q.quote); err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"quote": "unable to retrieve"})
 	}
-
-	fmt.Println(q.quote)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"quote": q.quote})
 }
 
 func main() {
@@ -49,7 +53,6 @@ func main() {
 	r.HandleFunc("/api/v1/set-quote", setQuote).Methods("POST")
 	r.HandleFunc("/api/v1/healthz", func(w http.ResponseWriter, r *http.Request) {
 		if err := db.Ping(); err != nil {
-			log.Fatal(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]bool{"healthy": false})
 		} else {
