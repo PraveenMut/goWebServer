@@ -12,7 +12,12 @@ import (
 )
 
 func setQuote(w http.ResponseWriter, r *http.Request) {
-
+	quote := "You and me, we're meant to be, roaming free, in harmony. One fine day, we'll fly away. Don't you know that Rome wasn't built in a day."
+	result, err := db.Exec(`INSERT INTO quotes (quote) VALUES ?`, quote)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
 }
 
 func getQuote(w http.ResponseWriter, r *http.Request) {
@@ -32,11 +37,6 @@ func getQuote(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(q.quote)
 }
-
-func healthCheck(w http.ResponseWriter, r *http.Request) {
-
-}
-
 
 func main() {
 	db, err := sql.Open("mysql", "root:root@(localhost:3306)/mydatabase")
